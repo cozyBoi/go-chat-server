@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", "0.0.0.0:8080", "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -68,8 +68,6 @@ func main() {
 	log.SetFlags(0)
 	http.HandleFunc("/echo", echo)
 	http.HandleFunc("/", home)
-	chat_log = append(chat_log, "hi")
-	chat_log = append(chat_log, "hello")
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
 
