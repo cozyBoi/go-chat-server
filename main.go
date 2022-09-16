@@ -15,7 +15,16 @@ var upgrader = websocket.Upgrader{} // use default options
 
 var chat_log []string
 
-//var lzst_prnt_idx map[websocket.Conn]int
+var conns []*websocket.Conn
+
+func broadcast_msg(conn *websocket.Conn, msg []byte) {
+	for _, curr_conn := range conns {
+		if curr_conn == conn {
+			continue
+		}
+		curr_conn.WriteMessage(1, msg)
+	}
+}
 
 func echo(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
@@ -25,20 +34,24 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	//print previous chats
+	//init phase
+	//1. print previous chats
 	for _, chat := range chat_log {
 		c.WriteMessage(1, []byte(chat))
 	}
 
+	//2. add conn
+	conns = append(conns, c)
+
 	for {
-		mt, message, err := c.ReadMessage() //get msg type and msg
+		_, message, err := c.ReadMessage() //get msg type and msg
 		if err != nil {
 			log.Println("read:", err)
 			break
 		}
-		log.Printf("recv: %s", message)
 		chat_log = append(chat_log, string(message))
-		err = c.WriteMessage(mt, message) //echo
+		//err = c.WriteMessage(mt, message) //echo
+		broadcast_msg(c, message)
 		if err != nil {
 			log.Println("write:", err)
 			break
