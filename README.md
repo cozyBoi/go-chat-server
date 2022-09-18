@@ -1,9 +1,12 @@
 # GO CHAT SERVER using Gorilla webSocket
 ### how to run?
+#### server
 ~~~
+cd server
 go run main.go
 ~~~
-##### Go to Chrome enter "your_url:8080"
+#### client
 ~~~
-0.0.0.0:8080
+cd web/client
+yarn serve
 ~~~
