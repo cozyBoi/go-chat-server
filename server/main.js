@@ -20,7 +20,7 @@ window.addEventListener("load", function(evt) {
         if (ws) {
             return false;
         }
-        ws = new WebSocket("ws://localhost:9100/socket");
+        ws = new WebSocket("{{.}}");
         ws.onopen = function(evt) {
             //print("OPEN");
         }
