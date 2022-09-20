@@ -10,7 +10,8 @@ import (
 )
 
 type Message struct {
-	Greeting string `json:greeting`
+	Broad bool   `json:broad`
+	Data  string `json:data`
 }
 
 var addr = flag.String("addr", "0.0.0.0:9100", "http service address")
@@ -44,21 +45,10 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 
 	conns = append(conns, c)
 
-	for {
-		var msg Message
-		c.ReadJSON(&msg) //get msg type and msg
-		fmt.Println(msg.Greeting)
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-		chat_log = append(chat_log, msg.Greeting)
-		err = c.WriteMessage(1, []byte(msg.Greeting)) //echo
-		//broadcast_msg(c, message)
-		if err != nil {
-			log.Println("write:", err)
-			break
-		}
+	for { //busy waiting?
+		_, msg, _ := c.ReadMessage() //get msg type and msg
+		chat_log = append(chat_log, string(msg))
+		broadcast_msg(c, msg)
 	}
 }
 

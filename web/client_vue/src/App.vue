@@ -2,40 +2,49 @@
 	<div id="conversation">
 		<div class="conversation-container">
 			<div v-for="message in messages" :key="message.index">
-				<div class="bubble">
-					{{ message }}
+        <div v-if="message.Broad" class="bubbleleft">
+					{{ message.Data }}
 				</div>
+        <div v-else class="bubbleright">
+					{{ message.Data }}
+        </div>
+      </div>
 			</div>
 		</div>
 		<div class="input-container">
 			<input @keyup.enter="sendMessage" v-model="messageText" placeholder="Enter your message">
 			<button @click="sendMessage">Send message</button>
 		</div>
-	</div>
 </template>
 <script>
 export default {
-	props: ["activeConversation", "name"],
 	data() {
 		return {
 			messages: [],
 			messageText: "",
-			isSignedInUser: false
 		}
 	},
 	mounted() {
-    this.socket = new WebSocket("ws://0.0.0.0:9100/socket")
-    this.socket.onmessage = (newMessages) => {
-      this.messageText = ""
-      this.messages.push(newMessages.data)
+    this.socket = new WebSocket("ws://0.0.0.0:9100/socket") //change to public IP 
+    this.socket.onmessage = (newMessage) => {
+      let msg = {
+        "Broad": true,
+        "Data": newMessage.data
+      }
+      this.messages.push(msg)
+      console.log(msg)
     }
 	},
 	methods: {
     sendMessage(){
       let msg = {
-        "greeting": this.messageText
+        "Broad": false,
+        "Data": this.messageText
       }
-      this.socket.send(JSON.stringify(msg))
+      this.socket.send(this.messageText)
+      this.messages.push(msg)
+      console.log(JSON.stringify(msg))
+      this.messageText = ""
     }
 	}
 }
@@ -49,19 +58,33 @@ export default {
   border: 3px solid #f1f1f1;
   overflow: scroll;
 }
+.input-container {
+  margin: 0 auto;
+  max-width: 400px;
+  height: 800px;
+}
 .bubble-container {
 	text-align: left;
 }
-.bubble {
+.bubbleright {
   border: 2px solid #f1f1f1;
-  background-color: #fdfbfa;
+  background-color: #7fbefc;
   border-radius: 5px;
   padding: 10px;
   margin: 10px 0;
 	width: 230px;
 	float: right;
 }
-.myMessage .bubble {
+.bubbleleft {
+  border: 2px solid #f1f1f1;
+  background-color: #fafdfd;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0;
+	width: 230px;
+	float: left;
+}
+.bubble {
 	background-color: #abf1ea;
 	border: 2px solid #87E0D7;
 	float: left;
