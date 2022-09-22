@@ -40,10 +40,36 @@ func socketHandler(ctx echo.Context) error {
 	}
 }
 
+var roomNumber int = 5
+var chatRooms = [5]string{"1", "2", "3", "4", "5"}
+
+func roomsHandler(ctx echo.Context) error {
+	var curr_error error
+	for i, room := range chatRooms {
+		if i == roomNumber-1 {
+			curr_error = ctx.String(http.StatusOK, room)
+		} else {
+			curr_error = ctx.String(http.StatusOK, room+",")
+		}
+	}
+	return curr_error
+}
+
+func roomsCreate(ctx echo.Context) error {
+	var curr_error error
+	curr_error = ctx.String(http.StatusOK, "roomHandler!")
+	return curr_error
+}
+
 func main() {
 	e := echo.New()
 	e.Static("/", "assets")
 	e.File("/", "assets/main.html")
 	e.GET("/ws", socketHandler)
+	e.GET("/rooms", roomsHandler)
+	//js 에서는 버튼클릭하면 GET /rooms/:id 보내게
+	//e.GET("/rooms/:id", HTML 바꾸기)
+	e.POST("/rooms", roomsCreate)
+
 	e.Start(":9100")
 }

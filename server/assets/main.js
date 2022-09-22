@@ -1,65 +1,45 @@
 window.addEventListener("load", function(evt) {
-    var output = document.getElementById("output");
-    var input = document.getElementById("input");
-    var ws;
-    var printL = function(message) {
-        var d = document.createElement("div");
-        d.textContent = message;
-        d.className = "bubbleleft"
-        output.appendChild(d);  
-        output.scroll(0, output.scrollHeight);
-    };
-    var printR = function(message) {
-        var d = document.createElement("div");
-        d.textContent = message;
-        d.className = "bubbleright"
-        output.appendChild(d);
-        output.scroll(0, output.scrollHeight);
-    };
-    document.getElementById("open").onclick = function(evt) {
-        if (ws) {
-            return false;
-        }
-        var loc = window.location;
-        var uri = 'ws:';
+    var loc = window.location;
+    var uri = 'http:';
+    var roomNumber;
 
-        if (loc.protocol === 'https:') {
-          uri = 'wss:';
-        }
-        uri += '//' + loc.host;
-        uri += loc.pathname + 'ws';
-        console.log(uri)
+    if (loc.protocol === 'https:') {
+       uri = 'https:';
+    }
+    uri += '//' + loc.host;
+    uri += loc.pathname;
+    console.log(uri)
 
-        ws = new WebSocket(uri);
-        ws.onopen = function(evt) {
-            //print("OPEN");
-        }
-        ws.onclose = function(evt) {
-            //print("CLOSE");
-            ws = null;
-        }
-        ws.onmessage = function(evt) {
-            printL("RESPONSE: " + evt.data);
-        }
-        ws.onerror = function(evt) {
-            printL("ERROR: " + evt.data);
-        }
-        return false;
+    //1. get room number
+    httpGetAsync(loc.pathname + 'rooms', printRooms)
+
+    document.getElementById("create").onclick = function(evt) {
+        //=> post chat room
+        console.log("asdsd")
     };
-    document.getElementById("send").onclick = function(evt) {
-        if (!ws) {
-            return false;
+
+    function printRooms(room){
+        //TODO add div
+        console.log(room);
+        var parseRooms = room.split(",");
+        var i;
+        for(i = 0; i < parseRooms.length; i++){
+            let btn = document.createElement("button");
+            btn.innerHTML = parseRooms[i];
+            document.body.appendChild(btn);
         }
-        //input.value.className = "bubble"
-        printR("SEND: " + input.value);
-        ws.send(input.value);
-        return false;
-    };
-    document.getElementById("close").onclick = function(evt) {
-        if (!ws) {
-            return false;
+        //var newDiv = document.createElement("div");
+        //newDiv.appendChild(btn);
+    }
+
+    function httpGetAsync(theUrl, callback)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
         }
-        ws.close();
-        return false;
-    };
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+        xmlHttp.send(null);
+    }
 });
