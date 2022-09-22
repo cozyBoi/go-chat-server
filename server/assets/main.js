@@ -20,7 +20,17 @@ window.addEventListener("load", function(evt) {
         if (ws) {
             return false;
         }
-        ws = new WebSocket("{{.}}");
+        var loc = window.location;
+        var uri = 'ws:';
+
+        if (loc.protocol === 'https:') {
+          uri = 'wss:';
+        }
+        uri += '//' + loc.host;
+        uri += loc.pathname + 'ws';
+        console.log(uri)
+
+        ws = new WebSocket(uri);
         ws.onopen = function(evt) {
             //print("OPEN");
         }
