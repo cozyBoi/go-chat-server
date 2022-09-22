@@ -55,6 +55,11 @@ func roomsHandler(ctx echo.Context) error {
 	return curr_error
 }
 
+func changeRoomHandler(ctx echo.Context) error {
+	fmt.Println("hi")
+	return ctx.File("assets/comm.html")
+}
+
 func roomsCreate(ctx echo.Context) error {
 	var curr_error error
 	curr_error = ctx.String(http.StatusOK, "roomHandler!")
@@ -63,12 +68,16 @@ func roomsCreate(ctx echo.Context) error {
 
 func main() {
 	e := echo.New()
+
 	e.Static("/", "assets")
+	e.Static("/rooms", "assets")
 	e.File("/", "assets/main.html")
+	e.File("/rooms/1", "assets/comm.html")
 	e.GET("/ws", socketHandler)
 	e.GET("/rooms", roomsHandler)
 	//js 에서는 버튼클릭하면 GET /rooms/:id 보내게
-	//e.GET("/rooms/:id", HTML 바꾸기)
+	//e.GET("/rooms/:id", changeRoomHandler)
+
 	e.POST("/rooms", roomsCreate)
 
 	e.Start(":9100")

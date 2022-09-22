@@ -18,6 +18,16 @@ window.addEventListener("load", function(evt) {
         console.log("asdsd")
     };
 
+    function enterRoom(evt) {
+        console.log("asdsd")
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() { 
+            document.location.href = uri + "rooms/1";
+        }
+        xmlHttp.open("GET", uri + "rooms/1", true); // true for asynchronous 
+        xmlHttp.send(null);
+    };
+
     function printRooms(room){
         //TODO add div
         console.log(room);
@@ -26,6 +36,7 @@ window.addEventListener("load", function(evt) {
         for(i = 0; i < parseRooms.length; i++){
             let btn = document.createElement("button");
             btn.innerHTML = parseRooms[i];
+            btn.onclick = enterRoom;
             document.body.appendChild(btn);
         }
         //var newDiv = document.createElement("div");
