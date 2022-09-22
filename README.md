@@ -5,8 +5,3 @@
 cd server
 go run main.go
 ~~~
-#### client
-~~~
-cd web/client
-yarn serve
-~~~

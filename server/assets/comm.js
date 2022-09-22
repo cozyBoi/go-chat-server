@@ -27,7 +27,7 @@ window.addEventListener("load", function(evt) {
           uri = 'wss:';
         }
         uri += '//' + loc.host;
-        uri += loc.pathname + 'ws';
+        uri += loc.pathname + '/ws';
         console.log(uri)
 
         ws = new WebSocket(uri);

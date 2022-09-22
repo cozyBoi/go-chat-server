@@ -76,7 +76,7 @@ func main() {
 	e.GET("/ws", socketHandler)
 	e.GET("/rooms", roomsHandler)
 	//js 에서는 버튼클릭하면 GET /rooms/:id 보내게
-	//e.GET("/rooms/:id", changeRoomHandler)
+	//ws://192.168.0.37:9100/rooms/:id/ws 와 웹소켓을 열어야함
 
 	e.POST("/rooms", roomsCreate)
 
