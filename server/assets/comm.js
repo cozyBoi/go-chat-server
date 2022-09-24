@@ -2,6 +2,7 @@ window.addEventListener("load", function(evt) {
     var output = document.getElementById("output");
     var input = document.getElementById("input");
     var ws;
+    
     var printL = function(message) {
         var d = document.createElement("div");
         d.textContent = message;

@@ -83,7 +83,7 @@ func main() {
 	e.Static("/rooms", "assets")
 
 	e.File("/", "assets/main.html")
-	e.File("/rooms/1", "assets/comm.html")
+	e.File("/rooms/:id", "assets/comm.html")
 
 	e.GET("/rooms/:id/ws", socketHandler)
 	e.GET("/rooms", roomsHandler)

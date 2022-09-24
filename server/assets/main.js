@@ -15,16 +15,16 @@ window.addEventListener("load", function(evt) {
 
     document.getElementById("create").onclick = function(evt) {
         //=> post chat room
-        console.log("asdsd")
     };
 
     function enterRoom(evt) {
-        console.log("asdsd")
+        var curr_id = evt.target.getAttribute('id');
+        var roomUri = uri + "rooms/" + curr_id;
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function() { 
-            document.location.href = uri + "rooms/1";
+            document.location.href = roomUri;
         }
-        xmlHttp.open("GET", uri + "rooms/1", true); // true for asynchronous 
+        xmlHttp.open("GET", roomUri, true); // true for asynchronous 
         xmlHttp.send(null);
     };
 
@@ -37,6 +37,7 @@ window.addEventListener("load", function(evt) {
             let btn = document.createElement("button");
             btn.innerHTML = parseRooms[i];
             btn.onclick = enterRoom;
+            btn.id = i+1;
             document.body.appendChild(btn);
         }
         //var newDiv = document.createElement("div");
