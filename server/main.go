@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -14,10 +15,11 @@ var upgrader = websocket.Upgrader{
 
 var chat_log []string
 
-var conns []*websocket.Conn
+var conns map[int][]*websocket.Conn //chatroom id => map => conn[]
 
-func broadcast_msg(conn *websocket.Conn, msg []byte) {
-	for _, curr_conn := range conns {
+func broadcast_msg(conn *websocket.Conn, msg []byte, roomId int) {
+	connsArr := conns[roomId]
+	for _, curr_conn := range connsArr {
 		if curr_conn == conn {
 			continue
 		}
@@ -26,17 +28,24 @@ func broadcast_msg(conn *websocket.Conn, msg []byte) {
 }
 
 func socketHandler(ctx echo.Context) error {
-	upgrader.CheckOrigin = func(r *http.Request) bool { return true } //araboza
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	c, _ := upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
-	fmt.Println("connect socket")
+
 	defer c.Close()
 
-	conns = append(conns, c)
+	roomIdStr := ctx.Param("id")
+	roomId, _ := strconv.Atoi(roomIdStr)
+	_, flag := conns[roomId]
+	if !flag {
+		conns[roomId] = make([]*websocket.Conn, 0, 10)
+	}
+
+	conns[roomId] = append(conns[roomId], c)
 
 	for {
 		_, msg, _ := c.ReadMessage() //get msg type and msg
 		chat_log = append(chat_log, string(msg))
-		broadcast_msg(c, msg)
+		broadcast_msg(c, msg, roomId)
 	}
 }
 
@@ -67,16 +76,17 @@ func roomsCreate(ctx echo.Context) error {
 }
 
 func main() {
+	conns = make(map[int][]*websocket.Conn)
 	e := echo.New()
 
 	e.Static("/", "assets")
 	e.Static("/rooms", "assets")
+
 	e.File("/", "assets/main.html")
 	e.File("/rooms/1", "assets/comm.html")
-	e.GET("/ws", socketHandler)
+
+	e.GET("/rooms/:id/ws", socketHandler)
 	e.GET("/rooms", roomsHandler)
-	//js 에서는 버튼클릭하면 GET /rooms/:id 보내게
-	//ws://192.168.0.37:9100/rooms/:id/ws 와 웹소켓을 열어야함
 
 	e.POST("/rooms", roomsCreate)
 
