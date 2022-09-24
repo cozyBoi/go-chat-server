@@ -15,6 +15,7 @@ var upgrader = websocket.Upgrader{
 var chat_log []string
 
 var conns map[int][]*websocket.Conn //chatroom id => map => conn[]
+var chatCache map[int]*queue        //cache 30 chats
 
 func broadcast_msg(conn *websocket.Conn, msg []byte, roomId int) {
 	connsArr := conns[roomId]
@@ -45,13 +46,17 @@ func socketHandler(ctx echo.Context) error {
 	_, flag := conns[roomId]
 	if !flag {
 		conns[roomId] = make([]*websocket.Conn, 0, 10)
+		chatCache[roomId] = NewQ()
 	}
 
 	conns[roomId] = append(conns[roomId], c)
 
 	for {
 		_, msg, _ := c.ReadMessage() //get msg type and msg
-		chat_log = append(chat_log, string(msg))
+		if chatCache[roomId].IsFull() {
+			chatCache[roomId].Pop()
+		}
+		chatCache[roomId].Push(string(msg))
 		broadcast_msg(c, msg, roomId)
 	}
 }
@@ -71,6 +76,29 @@ func roomsHandler(ctx echo.Context) error {
 	return curr_error
 }
 
+func sendPrevChats(ctx echo.Context) error {
+	var curr_error error
+	roomIdStr := ctx.Param("id")
+	roomId, _ := strconv.Atoi(roomIdStr)
+
+	if chatCache[roomId] == nil {
+		return ctx.NoContent(http.StatusOK)
+	} else if chatCache[roomId].size == 0 {
+		return ctx.NoContent(http.StatusOK)
+	}
+
+	for i := 0; i < chatCache[roomId].size; i++ {
+		curr_idx := (chatCache[roomId].front + i) % 30
+		//fmt.Println(chatCache[roomId].buf[curr_idx])
+		if i == chatCache[roomId].size-1 {
+			curr_error = ctx.String(http.StatusOK, chatCache[roomId].buf[curr_idx])
+		} else {
+			curr_error = ctx.String(http.StatusOK, chatCache[roomId].buf[curr_idx]+",")
+		}
+	}
+	return curr_error
+}
+
 func changeRoomHandler(ctx echo.Context) error {
 	return ctx.File("assets/comm.html")
 }
@@ -83,6 +111,7 @@ func roomsCreate(ctx echo.Context) error {
 
 func main() {
 	conns = make(map[int][]*websocket.Conn)
+	chatCache = make(map[int]*queue)
 	e := echo.New()
 
 	e.Static("/", "assets")
@@ -92,6 +121,7 @@ func main() {
 	e.File("/rooms/:id", "assets/comm.html")
 
 	e.GET("/rooms/:id/ws", socketHandler)
+	e.GET("/rooms/:id/chats", sendPrevChats)
 	e.GET("/rooms", roomsHandler)
 
 	e.POST("/rooms", roomsCreate)

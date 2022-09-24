@@ -1,7 +1,6 @@
 window.addEventListener("load", function(evt) {
     var loc = window.location;
     var uri = 'http:';
-    var roomNumber;
 
     if (loc.protocol === 'https:') {
        uri = 'https:';

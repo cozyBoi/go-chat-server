@@ -16,6 +16,19 @@ window.addEventListener("load", function(evt) {
     console.log(uri)
 
     ws = new WebSocket(uri);
+
+    //get last 30 chats
+    httpGetAsync(loc.pathname + '/chats', printChats)
+
+    function printChats(chats){
+        //TODO add div
+        var parseChats = chats.split(",");
+        var i;
+        console.log(chats)
+        for(i = 0; i < parseChats.length; i++){
+            printL(parseChats[i]);
+        }
+    }
     ws.onclose = function(evt) {
         ws = null;
     }
@@ -55,6 +68,16 @@ window.addEventListener("load", function(evt) {
         ws.close();
         return false;
     };
+    function httpGetAsync(theUrl, callback)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+        }
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+        xmlHttp.send(null);
+    }
 });
 
 window.addEventListener("beforeunload", function(evt) {
