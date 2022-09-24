@@ -52,7 +52,10 @@ func socketHandler(ctx echo.Context) error {
 	conns[roomId] = append(conns[roomId], c)
 
 	for {
-		_, msg, _ := c.ReadMessage() //get msg type and msg
+		_, msg, err := c.ReadMessage() //get msg type and msg
+		if err != nil {
+			return err
+		}
 		if chatCache[roomId].IsFull() {
 			chatCache[roomId].Pop()
 		}

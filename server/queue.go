@@ -8,6 +8,7 @@ type queue struct {
 }
 
 func NewQ() *queue {
+	//constructor => rear = 0 front = 0
 	newQ := new(queue)
 	newQ.rear = 0
 	newQ.front = 0
@@ -15,7 +16,6 @@ func NewQ() *queue {
 	return newQ
 }
 
-//constructor => rear = 0 front = 0
 func (q *queue) IsFull() bool {
 	if q.size == 30 {
 		return true
