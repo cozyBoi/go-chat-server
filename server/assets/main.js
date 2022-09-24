@@ -15,6 +15,11 @@ window.addEventListener("load", function(evt) {
 
     document.getElementById("create").onclick = function(evt) {
         //=> post chat room
+        var roomUri = uri + "rooms";
+        console.log(roomUri);
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("POST", roomUri, true); // true for asynchronous 
+        xmlHttp.send(null);
     };
 
     function enterRoom(evt) {

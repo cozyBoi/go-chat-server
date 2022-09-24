@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -27,14 +26,22 @@ func broadcast_msg(conn *websocket.Conn, msg []byte, roomId int) {
 	}
 }
 
+func connClose(c *websocket.Conn, rid int) {
+	for i, curr_conn := range conns[rid] {
+		if curr_conn == c {
+			conns[rid] = append(conns[rid][:i], conns[rid][i+1:]...) //... => unpack the slice
+		}
+	}
+	c.Close()
+}
+
 func socketHandler(ctx echo.Context) error {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	c, _ := upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
 
-	defer c.Close()
-
 	roomIdStr := ctx.Param("id")
 	roomId, _ := strconv.Atoi(roomIdStr)
+	defer connClose(c, roomId)
 	_, flag := conns[roomId]
 	if !flag {
 		conns[roomId] = make([]*websocket.Conn, 0, 10)
@@ -50,7 +57,7 @@ func socketHandler(ctx echo.Context) error {
 }
 
 var roomNumber int = 5
-var chatRooms = [5]string{"1", "2", "3", "4", "5"}
+var chatRooms = []string{"1", "2", "3", "4", "5"}
 
 func roomsHandler(ctx echo.Context) error {
 	var curr_error error
@@ -65,14 +72,13 @@ func roomsHandler(ctx echo.Context) error {
 }
 
 func changeRoomHandler(ctx echo.Context) error {
-	fmt.Println("hi")
 	return ctx.File("assets/comm.html")
 }
 
 func roomsCreate(ctx echo.Context) error {
-	var curr_error error
-	curr_error = ctx.String(http.StatusOK, "roomHandler!")
-	return curr_error
+	roomNumber++
+	chatRooms = append(chatRooms, strconv.Itoa(roomNumber))
+	return ctx.NoContent(http.StatusOK)
 }
 
 func main() {
