@@ -9,7 +9,8 @@ cd server
 
 ~~~
 Enter ip:port in your browser
-192.168.0.37:9100
+<<hostingMachineIP>>:9100
+localhost:9100
 ~~~
 
 ### Funtions
