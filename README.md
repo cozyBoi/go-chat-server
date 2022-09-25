@@ -8,7 +8,7 @@ cd server
 ~~~
 
 ~~~
-Enter ip:port with your browser
+Enter ip:port in your browser
 192.168.0.37:9100
 ~~~
 
