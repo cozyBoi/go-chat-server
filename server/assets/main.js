@@ -11,7 +11,8 @@ window.addEventListener("load", function(evt) {
 
     //1. get room number
     httpGetAsync(loc.pathname + 'rooms', printRooms)
-    httpGetAsync(loc.pathname + 'cookie', function(asdf){
+    httpGetAsync(loc.pathname + 'cookie', function(msg){
+        console.log(msg)
         console.log(document.cookie)
     })
 

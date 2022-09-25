@@ -22,12 +22,22 @@ window.addEventListener("load", function(evt) {
 
     function printChats(chats){
         //TODO add div
-        var parseChats = chats.split(",");
         var i;
-        console.log(chats)
-        for(i = 0; i < parseChats.length; i++){
-            printL(parseChats[i]);
+        
+        if (chats == null || chats == "") {
+            return
         }
+        var parseChats = chats.split('\n');
+        parseChats.forEach(x => {
+            if(x == "") return
+            let data = JSON.parse(x)
+            if ("cid=" + data["sender"] == document.cookie){
+                printR("Prev: " + data["msg"]);
+            }
+            else{
+                printL("Prev: " + data["msg"]);
+            }
+        });
     }
     ws.onclose = function(evt) {
         ws = null;

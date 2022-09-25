@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -50,6 +51,10 @@ func socketHandler(ctx echo.Context) error {
 	}
 
 	conns[roomId] = append(conns[roomId], c)
+	cid, err := ctx.Cookie("cid")
+	if err != nil {
+		return err
+	}
 
 	for {
 		_, msg, err := c.ReadMessage() //get msg type and msg
@@ -59,7 +64,9 @@ func socketHandler(ctx echo.Context) error {
 		if chatCache[roomId].IsFull() {
 			chatCache[roomId].Pop()
 		}
-		chatCache[roomId].Push(string(msg))
+		newChat := buff{Msg: string(msg), Sender: cid.Value}
+		fmt.Println(newChat)
+		chatCache[roomId].Push(newChat)
 		broadcast_msg(c, msg, roomId)
 	}
 }
@@ -92,12 +99,8 @@ func sendPrevChats(ctx echo.Context) error {
 
 	for i := 0; i < chatCache[roomId].size; i++ {
 		curr_idx := (chatCache[roomId].front + i) % 30
-		//fmt.Println(chatCache[roomId].buf[curr_idx])
-		if i == chatCache[roomId].size-1 {
-			curr_error = ctx.String(http.StatusOK, chatCache[roomId].buf[curr_idx])
-		} else {
-			curr_error = ctx.String(http.StatusOK, chatCache[roomId].buf[curr_idx]+",")
-		}
+		fmt.Println(chatCache[roomId].buf[curr_idx])
+		curr_error = ctx.JSON(http.StatusOK, &chatCache[roomId].buf[curr_idx])
 	}
 	return curr_error
 }
@@ -115,6 +118,7 @@ func roomsCreate(ctx echo.Context) error {
 func main() {
 	conns = make(map[int][]*websocket.Conn)
 	chatCache = make(map[int]*queue)
+
 	e := echo.New()
 
 	e.Static("/", "assets")

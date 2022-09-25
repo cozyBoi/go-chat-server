@@ -1,7 +1,12 @@
 package main
 
+type buff struct {
+	Msg    string `json:"msg"` //describe how exported to json
+	Sender string `json:"sender"`
+}
+
 type queue struct {
-	buf   [30]string
+	buf   [30]buff
 	rear  int
 	front int
 	size  int
@@ -32,19 +37,19 @@ func (q *queue) IsEmpty() bool {
 	}
 }
 
-func (q *queue) Push(msg string) {
+func (q *queue) Push(buf buff) {
 	if q.IsFull() {
 		return
 	}
 
-	q.buf[q.rear] = msg
+	q.buf[q.rear] = buf
 	q.rear = (q.rear + 1) % 30
 	q.size++
 }
 
-func (q *queue) Pop() string {
+func (q *queue) Pop() buff {
 	if q.IsEmpty() {
-		return ""
+		return buff{}
 	}
 
 	ret := q.buf[q.front]

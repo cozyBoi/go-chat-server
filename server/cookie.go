@@ -31,7 +31,8 @@ func writeCookie(c echo.Context) error {
 		cookie.Expires = time.Now().Add(24 * time.Hour)
 		cookieNum++
 		c.SetCookie(cookie)
+
 		return c.String(http.StatusOK, "write a cookie")
 	}
-	return c.NoContent(http.StatusOK)
+	return c.String(http.StatusOK, "cookie already exists")
 }

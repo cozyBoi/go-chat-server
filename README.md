@@ -3,5 +3,6 @@
 #### server
 ~~~
 cd server
-go run main.go queue.go
+./compileAndRun
+./cozyboi-server
 ~~~
