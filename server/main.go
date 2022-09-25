@@ -126,6 +126,7 @@ func main() {
 	e.GET("/rooms/:id/ws", socketHandler)
 	e.GET("/rooms/:id/chats", sendPrevChats)
 	e.GET("/rooms", roomsHandler)
+	e.GET("/cookie", writeCookie)
 
 	e.POST("/rooms", roomsCreate)
 

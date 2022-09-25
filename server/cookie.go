@@ -13,7 +13,7 @@ import (
 var cookieNum int = 0
 
 func readCookie(c echo.Context) error {
-	cookie, err := c.Cookie("id")
+	cookie, err := c.Cookie("cid")
 	if err != nil {
 		return err
 	}
@@ -23,11 +23,15 @@ func readCookie(c echo.Context) error {
 }
 
 func writeCookie(c echo.Context) error {
-	cookie := new(http.Cookie)
-	cookie.Name = "id"
-	cookie.Value = strconv.Itoa(cookieNum)
-	cookie.Expires = time.Now().Add(24 * time.Hour)
-	cookieNum++
-	c.SetCookie(cookie)
-	return c.String(http.StatusOK, "write a cookie")
+	cookie, err := c.Cookie("cid")
+	if err != nil {
+		cookie = new(http.Cookie)
+		cookie.Name = "cid"
+		cookie.Value = strconv.Itoa(cookieNum)
+		cookie.Expires = time.Now().Add(24 * time.Hour)
+		cookieNum++
+		c.SetCookie(cookie)
+		return c.String(http.StatusOK, "write a cookie")
+	}
+	return c.NoContent(http.StatusOK)
 }

@@ -11,6 +11,9 @@ window.addEventListener("load", function(evt) {
 
     //1. get room number
     httpGetAsync(loc.pathname + 'rooms', printRooms)
+    httpGetAsync(loc.pathname + 'cookie', function(asdf){
+        console.log(document.cookie)
+    })
 
     document.getElementById("create").onclick = function(evt) {
         //=> post chat room
